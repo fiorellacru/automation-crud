@@ -1,5 +1,5 @@
 package com.tuempresa.model;
-
+// Funciona como
 public class User {
     private Long id;
     private String name;

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Hace responsive la página -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CRUD Users</title>
+
+    <style>
+
+        /* Estilos generales de la página */
+        body {
+
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+
+            display: flex;
+            justify-content: center;
+
+            padding-top: 50px;
+        }
+
+        /* Contenedor principal */
+        .container {
+
+            background-color: white;
+
+            width: 400px;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Título */
+        h1 {
+
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Inputs */
+        input {
+
+            width: 100%;
+
+            padding: 10px;
+
+            margin-bottom: 10px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 5px;
+
+            box-sizing: border-box;
+        }
+
+        /* Botones */
+        button {
+
+            width: 100%;
+
+            padding: 10px;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            margin-bottom: 10px;
+        }
+
+        /* Botón crear */
+        .create-btn {
+
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Botón cargar */
+        .load-btn {
+
+            background-color: #2196F3;
+            color: white;
+        }
+
+        /* Hover botones */
+        button:hover {
+
+            opacity: 0.9;
+        }
+
+        /* Lista usuarios */
+        ul {
+
+            list-style: none;
+
+            padding: 0;
+        }
+
+        /* Cada usuario */
+        li {
+
+            background-color: #f1f1f1;
+
+            padding: 10px;
+
+            border-radius: 5px;
+
+            margin-bottom: 10px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+        /* Botón delete */
+        .delete-btn {
+
+            background-color: #e53935;
+
+            color: white;
+
+            width: auto;
+
+            padding: 5px 10px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Título principal -->
+    <h1>CRUD Users</h1>
+
+    <!-- Input nombre -->
+    <input type="text" id="name" placeholder="Enter name">
+
+    <!-- Input trabajo -->
+    <input type="text" id="job" placeholder="Enter job">
+
+    <!-- Botón crear -->
+    <button class="create-btn" onclick="createUser()">
+        Create User
+    </button>
+
+    <!-- Botón cargar -->
+    <button class="load-btn" onclick="loadUsers()">
+        Load Users
+    </button>
+
+    <!-- Lista donde se renderizan usuarios -->
+    <ul id="userList"></ul>
+
+</div>
+
+<script>
+
+    // Función para cargar usuarios desde backend
+    async function loadUsers() {
+
+        // Request GET a API
+        const response = await fetch('http://localhost:8080/users');
+
+        // Convierte respuesta JSON a objeto JS
+        const users = await response.json();
+
+        // Obtiene lista HTML
+        const userList = document.getElementById('userList');
+
+        // Limpia lista
+        userList.innerHTML = '';
+
+        // Recorre usuarios
+        users.forEach(user => {
+
+            // Crea elemento li
+            const li = document.createElement('li');
+
+            // Crea span para texto usuario
+            const span = document.createElement('span');
+
+            // Texto dinámico
+            span.textContent = user.name + ' - ' + user.job;
+
+            // Botón eliminar
+            const deleteButton = document.createElement('button');
+
+            deleteButton.textContent = 'Delete';
+
+            deleteButton.className = 'delete-btn';
+
+            // Evento click delete
+            deleteButton.onclick = () => deleteUser(user.id);
+
+            // Agrega texto al li
+            li.appendChild(span);
+
+            // Agrega botón al li
+            li.appendChild(deleteButton);
+
+            // Inserta li en ul
+            userList.appendChild(li);
+
+        });
+
+    }
+
+    // Función crear usuario
+    async function createUser() {
+
+        // Obtiene valores inputs
+        const name = document.getElementById('name').value;
+
+        const job = document.getElementById('job').value;
+
+        // Objeto usuario
+        const newUser = {
+
+            id: Date.now(),
+
+            name: name,
+
+            job: job
+        };
+
+        // Request POST
+        await fetch('http://localhost:8080/users', {
+
+            method: 'POST',
+
+            headers: {
+
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(newUser)
+
+        });
+
+        // Recarga usuarios
+        loadUsers();
+
+    }
+
+    // Función eliminar usuario
+    async function deleteUser(id) {
+
+        // Request DELETE
+        await fetch(`http://localhost:8080/users/${id}`, {
+
+            method: 'DELETE'
+
+        });
+
+        // Recarga lista
+        loadUsers();
+
+    }
+
+</script>
+
+</body>
+
+</html>
